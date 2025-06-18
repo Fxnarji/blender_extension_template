@@ -29,7 +29,14 @@ jobs:
       - name: Get latest release tag and calculate new version
         id: get_tag
         run: |
-          latest_tag=$(gh api repos/${{ github.repository }}/releases/latest --jq .tag_name 2>/dev/null || echo "v0.0.0")
+          latest_tag=$(gh api repos/${{ github.repository }}/releases/latest --jq '.[].tag_name' 2>/dev/null)
+
+          if [[ -z "$release_tags" ]]; then
+            latest_tag="v0.0.0"
+          else
+            latest_tag=$(gh api repos/Fxnarji/blender_extension_template/releases/latest --jq .tag_name 2>/dev/null)
+          fi
+
           echo "Latest tag: $latest_tag"
 
           latest_tag_clean="${latest_tag#v}"
