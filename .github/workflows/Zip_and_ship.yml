@@ -45,11 +45,6 @@ jobs:
           latest_tag_clean="${latest_tag#v}"
           IFS='.' read -r major minor patch <<< "$latest_tag_clean"
 
-          # Inputs
-          bump_patch="true"
-          bump_minor="false"
-          bump_major="false"
-
           if [[ "$bump_major" == "true" ]]; then
             major=$((major + 1))
             minor=0
