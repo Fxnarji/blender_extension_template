@@ -3,10 +3,6 @@ name: Manual Release
 on:
   workflow_dispatch:
     inputs:
-      bump_patch:
-        description: "Bump patch version (default)"
-        required: false
-        default: "true"
       bump_minor:
         description: "Bump minor version"
         required: false
@@ -41,6 +37,10 @@ jobs:
           fi
 
           echo "Latest tag: $latest_tag"
+
+          echo "$bump_major"
+          echo "$bump_minor"
+
 
           latest_tag_clean="${latest_tag#v}"
           IFS='.' read -r major minor patch <<< "$latest_tag_clean"
