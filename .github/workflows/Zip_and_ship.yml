@@ -37,19 +37,18 @@ jobs:
           fi
 
           echo "Latest tag: $latest_tag"
-
-          echo "$bump_major"
-          echo "$bump_minor"
+          echo "bump_major: ${{ github.event.inputs.bump_major }}"
+          echo "bump_minor: ${{ github.event.inputs.bump_minor }}"
 
 
           latest_tag_clean="${latest_tag#v}"
           IFS='.' read -r major minor patch <<< "$latest_tag_clean"
 
-          if [[ "$bump_major" == "true" ]]; then
+          if [[ ${{ github.event.inputs.bump_major }} == "true" ]]; then
             major=$((major + 1))
             minor=0
             patch=0
-          elif [[ "$bump_minor" == "true" ]]; then
+          elif [[ ${{ github.event.inputs.bump_minor }} == "true" ]]; then
             minor=$((minor + 1))
             patch=0
           else
