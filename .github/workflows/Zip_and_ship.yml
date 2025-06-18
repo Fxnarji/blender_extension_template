@@ -90,7 +90,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add blender_manifest.toml
-          git commit --allow-empty -m "Update version to ${{ steps.get_tag.outputs.new_tag }}" --allow_empty
+          git commit --allow-empty -m "Update version to ${{ steps.get_tag.outputs.new_tag }}"
           git push
 
       - name: Create new GitHub release
