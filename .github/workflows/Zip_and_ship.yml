@@ -51,10 +51,9 @@ jobs:
           elif [[ ${{ github.event.inputs.bump_minor }} == "true" ]]; then
             minor=$((minor + 1))
             patch=0
-          else
-            patch=$((patch + 1))
           fi
 
+          patch=$((patch + 1))
           new_tag="$major.$minor.$patch"
           echo "new_tag=$new_tag" >> "$GITHUB_OUTPUT"
           echo "new_tag_with_v=v$new_tag" >> "$GITHUB_OUTPUT"
