@@ -26,14 +26,14 @@ jobs:
         id: get_tag
         run: |
           # Get the list of releases (an array)
-          release_tags=$(gh api repos/Fxnarji/blender_extension_template/releases --jq '.[].tag_name' 2>/dev/null)
+          release_tags=$(gh api repos/${{ github.repository }}/releases --jq '.[].tag_name' 2>/dev/null)
 
           if [[ -z "$release_tags" ]]; then
             # No releases: fallback
             latest_tag="v0.0.0"
           else
             # Get the latest tag from the first release in the list (releases API returns in descending order)
-            latest_tag=$(gh api repos/Fxnarji/blender_extension_template/releases --jq '.[0].tag_name' 2>/dev/null)
+            latest_tag=$(gh api repos/${{ github.repository }}/releases --jq '.[0].tag_name' 2>/dev/null)
           fi
 
           echo "Latest tag: $latest_tag"
