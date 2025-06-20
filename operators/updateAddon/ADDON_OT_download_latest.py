@@ -49,7 +49,7 @@ class ADDON_OT_update_addon(bpy.types.Operator):
         remote_version = AddonProperties.remote_version
         zip_path = self.download_latest_release(remote_version)
         print(zip_path)
-        #self.install_new_version(zip_path)
+        self.install_new_version(zip_path)
         return {'FINISHED'}
     
 
