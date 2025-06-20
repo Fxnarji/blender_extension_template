@@ -70,17 +70,14 @@ jobs:
 
       - name: Create zip archive
         run: |
-          cd ..
           repo_name=$(basename `git rev-parse --show-toplevel`)
           zip_name="${repo_name}_${{ steps.get_tag.outputs.new_tag }}.zip"
-          zip -r "${repo_name}/builds/$zip_name" "$repo_name" \
-            -x "$repo_name/.git/*" \
-            -x "$repo_name/.github/*" \
-            -x "$repo_name/builds/*" \
-            -x "$repo_name/__pycache__/*" \
-            -x "$repo_name/**/__pycache__/*"
-
-
+          zip -r "builds/$zip_name" . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "builds/*" \
+            -x "/__pycache__/*" \
+            -x "**/__pycache__/*"
 
       - name: Commit updated blender_manifest.toml
         run: |
