@@ -74,8 +74,9 @@ jobs:
           zip_name="${repo_name}_${{ steps.get_tag.outputs.new_tag }}.zip"
           zip -r "builds/$zip_name" . \
             -x ".git/*" \
-            -x ".github/workflows/*" \
+            -x ".github/*" \
             -x "builds/*" \
+            -x "/__pycache__/*" \
             -x "**/__pycache__/*"
 
       - name: Commit updated blender_manifest.toml
