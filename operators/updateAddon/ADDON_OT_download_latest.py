@@ -35,6 +35,8 @@ class ADDON_OT_update_addon(bpy.types.Operator):
     
     def install_new_version(path):
         bpy.ops.preferences.addon_install(filepath=path, overwrite=True)
+        bpy.ops.preferences.addon_enable(module = AddonProperties.module_name)
+        bpy.ops.wm.save_userpref()
 
     def execute(self, context):
         remote_version = AddonProperties.remote_version
