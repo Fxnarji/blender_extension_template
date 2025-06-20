@@ -1,6 +1,6 @@
 import bpy
-from ..properties import AddonProperties
-preferences = bpy.context.preferences.addons[AddonProperties.module_name]
+from ..constants import AddonProperties
+from ..constants import get_operator
          
 class VIEW3D_PT_UI_Sample(bpy.types.Panel):
     bl_label = "A Fancy Panel!"
@@ -13,16 +13,16 @@ class VIEW3D_PT_UI_Sample(bpy.types.Panel):
         layout = self.layout
         box = layout.box()
         box.label(text="you can give me a name!", icon = "OUTLINER_DATA_LIGHT")
-        box.operator("sample.operator", text = "example operator", icon = "BLENDER")
+        box.operator(get_operator("operator"), text = "example operator", icon = "BLENDER")
 
         row = layout.row()
         row.active = False
         row.label(text = "made by Fxnarji", icon = "SHADERFX")
-    
 
-    
-        
+        row = layout.row()
+        row.operator(get_operator("update"), text = "Check for updates", icon = "FILE_REFRESH")
 
-
-
-
+        if AddonProperties.needs_update:
+            box = layout.box()
+            box.label(text = "update available!")
+            box.operator(get_operator("update"), text = "download version " + str(AddonProperties.remote_version))

@@ -1,10 +1,9 @@
 import bpy
-from .. import properties
-preferences = bpy.context.preferences.addons[properties.AddonProperties.module_name].preferences
+from ..constants import get_preferences, get_operator
 
 # Define the operator to snap FK bones to IK bones
 class OBJECT_OT_Sample(bpy.types.Operator):
-    bl_idname = "sample.operator"
+    bl_idname = get_operator("operator")
     bl_description = "Renames selected Object to Hello World"
     bl_label = "Renames selected object to Hello World"
     bl_options = {'REGISTER', 'UNDO'}
