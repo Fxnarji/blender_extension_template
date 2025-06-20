@@ -8,8 +8,6 @@ from .operators.OBJECT_OT_Sample        import OBJECT_OT_Sample
 
 #panels
 from .panels.VIEW3D_PT_UI_Sample        import VIEW3D_PT_UI_Sample
-from .operators.updateAddon.ADDON_OT_check_updates import run_update_check
-from .operators.updateAddon.ADDON_OT_download_latest    import ADDON_OT_update_addon
 
 #reading values such as name, version and more from toml so there is no need to change information in two places
 def load_manifest_info():
@@ -52,7 +50,6 @@ classes = [
     Sample_Preferences,
     #operators:
     OBJECT_OT_Sample,
-    ADDON_OT_update_addon,
 
     #panels:
     VIEW3D_PT_UI_Sample
@@ -64,7 +61,7 @@ classes = [
 def register():
     for i in classes:
         bpy.utils.register_class(i)
-run_update_check()
+
 
     
 
