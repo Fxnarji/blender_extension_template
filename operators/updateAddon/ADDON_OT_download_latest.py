@@ -1,11 +1,11 @@
 import bpy
-import requests
-import tempfile
 import os
 import requests
+import tempfile
 
-from ...constants import AddonProperties, get_manifest, get_repo_api, get_preferences
-from ...constants import get_operator   
+from ...constants import AddonProperties, get_repo_api
+from ...constants import get_operator
+   
 class ADDON_OT_update_addon(bpy.types.Operator):
     bl_idname = get_operator("update")
     bl_label = "update_addon"
@@ -19,30 +19,32 @@ class ADDON_OT_update_addon(bpy.types.Operator):
 
         release = response.json()
 
-        for asset in release.get("assets", []):
-            asset_url = asset["browser_download_url"]
-            asset_name = asset["name"]
-            print(asset_name)
-            temp_path = tempfile.gettempdir()
-            asset_path = os.path.join(temp_path, asset_name)
 
-            print(f"Downloading asset: {asset_name}")
-            asset_response = requests.get(asset_url)
-            with open(asset_path, "wb") as f:
-                f.write(asset_response.content)
-            print(f"Saved asset to {asset_path}")
+        # [0] always downloads the first asset in the release page. 
+        # The manual release github action automatically adds the files in the right way, 
+        # but if you manually add more be careful
+        assets = release.get("assets", [])
+        new_build = assets[0]
+        asset_url = new_build["browser_download_url"]
+        asset_name = new_build["name"]
+
+        #downloads the new build by default into /tmp
+        temp_path = tempfile.gettempdir()
+        asset_path = os.path.join(temp_path, asset_name)
+
+        asset_response = requests.get(asset_url)
+        with open(asset_path, "wb") as f:
+            f.write(asset_response.content)
         return asset_path
     
-    def install_new_version(path):
+    def install_new_version(self,path):
+        #installs, enables the addon and saves preferences
         bpy.ops.preferences.addon_install(filepath=path, overwrite=True)
         bpy.ops.preferences.addon_enable(module = AddonProperties.module_name)
         bpy.ops.wm.save_userpref()
 
     def execute(self, context):
         remote_version = AddonProperties.remote_version
-        print(remote_version)
         zip_path = self.download_latest_release(remote_version)
         self.install_new_version(zip_path)
-        print(AddonProperties.remote_version)
-
         return {'FINISHED'}
