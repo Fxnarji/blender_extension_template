@@ -25,12 +25,12 @@ def get_current_version():
     return tuple(int(x) for x in current_version.split("."))
 
 def check_if_needs_update():
-    current_version = self.get_current_version()
-    remote_version = self.check_newest_github_release()
+    current_version = get_current_version()
+    remote_version = check_newest_github_release()
 
     if remote_version > current_version:
         print("out of date")
-        preferences = get_preferences(context)
+        preferences = get_preferences()
         preferences.NeedsUpdate = True
         return True
     else:
