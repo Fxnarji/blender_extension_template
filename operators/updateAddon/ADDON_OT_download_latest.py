@@ -11,7 +11,7 @@ class ADDON_OT_update_addon(bpy.types.Operator):
     bl_label = "update_addon"
 
 
-    def download_latest_release(release):
+    def download_latest_release(self, release):
         response = requests.get(get_repo_api(), timeout=5)
 
         if response.status_code != 200:
@@ -37,9 +37,10 @@ class ADDON_OT_update_addon(bpy.types.Operator):
         bpy.ops.preferences.addon_install(filepath=path, overwrite=True)
 
     def execute(self, context):
-        zip_path = self.download_latest_release(AddonProperties.remote_version)
-        self.install_new_version(zip_path)
-        bpy.ops.preferences.addon_enable(module=AddonProperties.module_name)
-        print(AddonProperties.remote_version)
+        remote_version = AddonProperties.remote_version
+        print(remote_version)
+        zip_path = self.download_latest_release(remote_version)
+        #self.install_new_version(zip_path)
+        #print(AddonProperties.remote_version)
 
         return {'FINISHED'}
