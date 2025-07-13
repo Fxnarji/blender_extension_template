@@ -16,14 +16,7 @@ bl_id_prefix = "my_addon"
 class AddonProperties:
     module_name = __package__
     panel_category = "FancyPanel"
-    needs_update = False
-    remote_version = (0,0,0)
 
-def get_repo_api():
-    return f"https://api.github.com/repos/{user_name}/{repo_name}/releases/latest"
-
-def get_release_page():    
-    return f"https://github.com/{user_name}/{repo_name}/releases/latest"
 
 def get_manifest():
     toml_path = os.path.join(os.path.dirname(__file__), "blender_manifest.toml")

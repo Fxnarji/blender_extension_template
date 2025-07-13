@@ -15,5 +15,6 @@ class OBJECT_OT_Sample(bpy.types.Operator):
     
     def execute(self, context):
         obj = bpy.context.active_object
+        self.report({'INFO'}, f"Renamed {obj.name} -> Hello World!")
         obj.name = "Hello World"
         return {'FINISHED'}

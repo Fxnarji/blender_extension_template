@@ -18,8 +18,3 @@ class VIEW3D_PT_UI_Sample(bpy.types.Panel):
         row = layout.row()
         row.active = False
         row.label(text = "made by Fxnarji", icon = "SHADERFX")
-
-        if AddonProperties.needs_update:
-            box = layout.box()
-            box.label(text = "update available!")
-            box.operator(get_operator("update"), text = "download version " + str(AddonProperties.remote_version))
