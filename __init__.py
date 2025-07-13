@@ -5,6 +5,7 @@ from .preferences import Sample_Preferences
 
 #Operators
 from .operators.OBJECT_OT_Sample        import OBJECT_OT_Sample 
+from .operators.DUMMY_OT_DummyOperator  import DUMMY_OT_DummyOperator
 
 #panels
 from .panels.VIEW3D_PT_UI_Sample        import VIEW3D_PT_UI_Sample
@@ -50,6 +51,7 @@ classes = [
     Sample_Preferences,
     #operators:
     OBJECT_OT_Sample,
+    DUMMY_OT_DummyOperator,
 
     #panels:
     VIEW3D_PT_UI_Sample
