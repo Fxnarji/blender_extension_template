@@ -1,17 +1,18 @@
-#i like to put values i need in multiple places here so i can change them in one place
+# i like to put values i need in multiple places here so i can change them in one place
+import bpy  # type: ignore
 import os
 import tomllib
-import bpy
 
 
-#dont mess with this too much
+# dont mess with this too much
 
-#replace this with your actual repo
-user_name = "Fxnarji"                           
-repo_name = "blender_extension_template"        
+# replace this with your actual repo
+user_name = "Fxnarji"
+repo_name = "blender_extension_template"
 
-#has to be all lowercase
-bl_id_prefix = "my_addon" 
+# has to be all lowercase
+bl_id_prefix = "my_addon"
+
 
 class AddonProperties:
     module_name = __package__
@@ -24,11 +25,13 @@ def get_manifest():
         manifest = tomllib.load(f)
     return manifest
 
-def get_preferences():
 
+def get_preferences():
     # No context needed, directly get addon preferences by package name
     addon_prefs = bpy.context.preferences.addons.get(__package__).preferences
     return addon_prefs
 
+
 def get_operator(name):
     return bl_id_prefix + "." + name
+
