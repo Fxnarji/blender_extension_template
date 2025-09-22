@@ -95,7 +95,7 @@ jobs:
           repo_name=$(basename `git rev-parse --show-toplevel`)
           blender --command extension build \
             --source-dir . \
-            --output-filepath builds/${repo_name}.zip \
+            --output-dir builds/\
             --valid-tags blender_manifest.toml \
             --verbose
 
