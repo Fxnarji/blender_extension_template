@@ -18,7 +18,7 @@ license = [
 # files = "Import/export FBX from/to disk"
 # clipboard = "Copy and paste bone transforms"
 [build]
-exclude = [
+paths_exclude_pattern = [
   "builds/*",
   ".git/*",
   ".github/*",
