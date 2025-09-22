@@ -15,8 +15,11 @@ jobs:
         with:
           version: "4.5"  # replace with the exact Blender version you want
 
-      - name: Run Blender build command
+      - name: Build Blender add-on
         run: |
           mkdir -p builds
           blender --command extension build --source-dir . --output-dir builds/ --verbose
 
+      - name: Generate index.json
+        run: |
+          blender --command extension server-generate --repo-dir .
