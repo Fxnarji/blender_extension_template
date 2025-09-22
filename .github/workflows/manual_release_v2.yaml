@@ -98,9 +98,6 @@ jobs:
             --output-dir builds \
             --output-filepath builds/${repo_name}.zip \
             --valid-tags blender_manifest.toml \
-            --ignore-path builds \
-            --ignore-path .git \
-            --ignore-path .github \
             --verbose
 
       - name: Generate index.json with Blender
