@@ -24,7 +24,8 @@ jobs:
 
       - name: Generate index.json
         run: |
-          blender --command extension server-generate --repo-dir .
+          blender --command extension server-generate --repo-dir builds/
+          mv builds/index.json ./index.json
 
       - name: Commit and push build artifacts
         run: |
