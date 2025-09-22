@@ -86,9 +86,9 @@ jobs:
           sed -i "s/^release_channel = \".*\"/release_channel = \"${{ github.event.inputs.release_type }}\"/" blender_manifest.toml
 
       - name: Install Blender
-        uses: bradyajohnston/setup-blender@v3
+      - uses: bradyajohnston/setup-blender@v4
         with:
-          version: "latest"
+          version: "4.5"
 
       - name: Build extension with Blender
         run: |
