@@ -1,5 +1,4 @@
-
-name: Build & Release
+name: Manual Release V3
 
 on:
   workflow_dispatch:
@@ -18,26 +17,21 @@ on:
         default: "beta"
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Blender
-        run: |
-          sudo add-apt-repository ppa:thomas-schiex/blender -y
-          sudo apt-get update
-          sudo apt-get install -y blender
+        uses: actions/checkout@v5
 
       - name: Get latest release tag and calculate new version
         id: get_tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          release_tags=$(gh api repos/${{ github.repository }}/releases --jq '.[].tag_name' 2>/dev/null || echo "")
+          release_tags=$(gh api repos/${{ github.repository }}/releases --jq '.[].tag_name' 2>/dev/null)
 
           if [[ -z "$release_tags" ]]; then
             latest_tag="v0.0.0"
@@ -54,15 +48,18 @@ jobs:
           IFS='.' read -r major minor patch <<< "$latest_tag_clean"
 
           if [[ "${{ github.event.inputs.bump_major }}" == "true" ]]; then
-            major=$((major + 1)); minor=0; patch=0
+            major=$((major + 1))
+            minor=0
+            patch=0
           elif [[ "${{ github.event.inputs.bump_minor }}" == "true" ]]; then
-            minor=$((minor + 1)); patch=0
+            minor=$((minor + 1))
+            patch=0
           fi
 
           patch=$((patch + 1))
           base_version="$major.$minor.$patch"
-
           release_type="${{ github.event.inputs.release_type }}"
+
           if [[ "$release_type" == "beta" ]]; then
             existing_betas=$(echo "$release_tags" | grep -E "^${base_version}-beta[0-9]+$" | sort -V -r)
             if [[ -z "$existing_betas" ]]; then
@@ -79,41 +76,102 @@ jobs:
 
           echo "new_tag=$new_tag" >> "$GITHUB_OUTPUT"
           echo "new_tag_with_v=v$new_tag" >> "$GITHUB_OUTPUT"
+          echo "base_version=$base_version" >> "$GITHUB_OUTPUT"
+          echo "beta_version=$beta_version" >> "$GITHUB_OUTPUT"
 
-      - name: Build add-on zip with Blender
+      - name: Update version in blender_manifest.toml
         run: |
-          mkdir -p builds
-          blender --background --command extension build \
+          sed -i "s/^version = \".*\"/version = \"${{ steps.get_tag.outputs.base_version }}\"/" blender_manifest.toml
+          sed -i "s/^beta_version = \".*\"/beta_version = \"${{ steps.get_tag.outputs.beta_version }}\"/" blender_manifest.toml
+          sed -i "s/^release_channel = \".*\"/release_channel = \"${{ github.event.inputs.release_type }}\"/" blender_manifest.toml
+
+      - name: Install Blender
+        uses: bradyajohnston/setup-blender@v3
+        with:
+          version: "latest"
+
+      - name: Build extension with Blender
+        run: |
+          repo_name=$(basename `git rev-parse --show-toplevel`)
+          blender --command extension build \
             --source-dir . \
-            --output-dir builds
+            --output-dir builds \
+            --output-filepath builds/${repo_name}.zip \
+            --valid-tags blender_manifest.toml \
+            --ignore-path builds \
+            --ignore-path .git \
+            --ignore-path .github \
+            --verbose
 
       - name: Generate index.json with Blender
         run: |
-          blender --background --command extension server-generate --repo-dir=.
+          blender --command extension server-generate \
+            --repo-dir .
 
-      - name: Commit and push build + index.json to gh-page (stable only)
+      - name: Commit updated files
+        run: |
+          repo_name=$(basename `git rev-parse --show-toplevel`)
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add blender_manifest.toml index.json "builds/${repo_name}.zip"
+          git commit --allow-empty -m "Update version to ${{ steps.get_tag.outputs.new_tag }}"
+          git push
+
+      - name: Push generic build zip to gh-page
         if: ${{ github.event.inputs.release_type == 'stable' }}
         run: |
           repo_name=$(basename `git rev-parse --show-toplevel`)
-
           git fetch origin gh-page || true
           git checkout gh-page || git checkout --orphan gh-page
-
           mkdir -p builds
-          cp "builds/${repo_name}.zip" "builds/${repo_name}.zip"
-          cp index.json index.json
-
+          git checkout main -- "builds/${repo_name}.zip"
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add builds/${repo_name}.zip index.json
-          git commit -m "Update build and index.json for ${{ steps.get_tag.outputs.new_tag }}"
+          git add "builds/${repo_name}.zip"
+          git commit -m "Update generic build zip"
           git push origin gh-page
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.get_tag.outputs.new_tag_with_v }}
-          name: Release ${{ steps.get_tag.outputs.new_tag }}
-          files: builds/*.zip
-          draft: false
-          prerelease: ${{ github.event.inputs.release_type == 'beta' }}
+      - name: Generate changelog
+        id: changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          latest_release_tag=$(gh api repos/${{ github.repository }}/releases --jq '.[0].tag_name' 2>/dev/null || echo "")
+
+          if [[ -z "$latest_release_tag" ]]; then
+            changelog=$(git log --pretty=format:"- %s" --reverse | grep -v "^- Update version to")
+          else
+            changelog=$(git log ${latest_release_tag}..HEAD --pretty=format:"- %s" --reverse | grep -v "^- Update version to")
+          fi
+
+          if [[ -z "$changelog" ]]; then
+            changelog="- No changes since last release"
+          fi
+
+          echo "## What's Changed" > release_notes.md
+          echo "" >> release_notes.md
+          echo "$changelog" >> release_notes.md
+          echo "" >> release_notes.md
+
+          if [[ -n "$latest_release_tag" ]]; then
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${latest_release_tag}...${{ steps.get_tag.outputs.new_tag }}" >> release_notes.md
+          else
+            echo "This is the first automated release with changelog." >> release_notes.md
+          fi
+
+      - name: Create new GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_flag=""
+          if [[ "${{ github.event.inputs.release_type }}" == "beta" ]]; then
+            release_flag="--prerelease"
+          fi
+
+          repo_name=$(basename `git rev-parse --show-toplevel`)
+
+          gh release create "${{ steps.get_tag.outputs.new_tag }}" \
+            --title "${repo_name} ${{ steps.get_tag.outputs.new_tag }}" \
+            --notes-file release_notes.md \
+            $release_flag \
+            "builds/${repo_name}.zip"
