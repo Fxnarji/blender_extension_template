@@ -25,5 +25,6 @@ paths_exclude_pattern = [
   "__pycache__/*",
   "*.pyc",
   "*.blend1",
+  "*.tar.xz"
   "*.zip"
 ]
