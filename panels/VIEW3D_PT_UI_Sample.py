@@ -1,7 +1,6 @@
 import bpy  # type: ignore
 from ..constants import AddonProperties
-from ..constants import get_operator
-
+from ..operators.OBJECT_OT_Sample import OBJECT_OT_Sample
 
 class VIEW3D_PT_UI_Sample(bpy.types.Panel):
     bl_label = "A Fancy Panel!"
@@ -13,7 +12,7 @@ class VIEW3D_PT_UI_Sample(bpy.types.Panel):
         layout = self.layout
         box = layout.box()
         box.label(text="you can give me a name!", icon="OUTLINER_DATA_LIGHT")
-        box.operator(get_operator("operator"), text="example operator", icon="BLENDER")
+        box.operator(OBJECT_OT_Sample.bl_idname, text="example operator", icon="BLENDER")
 
         row = layout.row()
         row.active = False

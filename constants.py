@@ -4,19 +4,12 @@ import os
 import tomllib
 
 
-# dont mess with this too much
-
-# replace this with your actual repo
-user_name = "Fxnarji"
-repo_name = "blender_extension_template"
-
 # has to be all lowercase
 bl_id_prefix = "my_addon"
 
-
 class AddonProperties:
     module_name = __package__
-    panel_category = "FancyPanel"
+    panel_category = "SamplePanel"
 
 
 def get_manifest():
